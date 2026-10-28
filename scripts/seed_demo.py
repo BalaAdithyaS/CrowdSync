@@ -2,9 +2,17 @@ import os
 import sys
 from datetime import datetime, timedelta, timezone
 
-# Add backend directory to sys.path
-backend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backend"))
-sys.path.insert(0, backend_path)
+# Add backend directory to sys.path flexibly (supports root scripts/ or backend/scripts/)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+potential_paths = [
+    os.path.abspath(os.path.join(current_dir, "..")),            # when in backend/scripts/
+    os.path.abspath(os.path.join(current_dir, "..", "backend")), # when in repo root scripts/
+    os.getcwd(),
+]
+for p in potential_paths:
+    if os.path.exists(os.path.join(p, "app")) and p not in sys.path:
+        sys.path.insert(0, p)
+        break
 
 from app.core.database import SessionLocal, engine, Base
 from app.core.security import hash_password

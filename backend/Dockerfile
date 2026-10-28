@@ -1,28 +1,31 @@
-# CrowdSync Backend Dockerfile
+# CrowdSync Backend Dockerfile (Context: backend)
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies including libpq for PostgreSQL
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install
-COPY backend/requirements.txt ./requirements.txt
+# Install Python dependencies
+COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code and migrations
-COPY backend /app/backend
-COPY scripts /app/scripts
-COPY alembic.ini /app/alembic.ini
+# Copy application source code, migrations, alembic configuration, and scripts
+COPY app ./app
+COPY migrations ./migrations
+COPY alembic.ini ./alembic.ini
+COPY scripts ./scripts
 
-# Set environment
-ENV PYTHONPATH=/app/backend:/app
+# Environment variables
+ENV PYTHONPATH=/app
 ENV PORT=8000
 
 EXPOSE 8000
 
-# Run database migrations and start server (seed demo if database is empty)
-CMD ["sh", "-c", "alembic upgrade head && python scripts/seed_demo.py && uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]
+# Start Uvicorn bound to 0.0.0.0 and the PORT environment variable provided by Render.
+# Migrations and seeding should run in the Render Pre-Deploy Command (or release phase).
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

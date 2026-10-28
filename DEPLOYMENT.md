@@ -74,31 +74,38 @@ Configure these in your frontend hosting platform dashboard (e.g., Vercel, Netli
 
 ---
 
-## 🐍 Option B: Deploy Backend to Render (Recommended)
+## 🐍 Option B: Deploy Backend to Render (Docker Web Service)
 
-1. Log in to [Render](https://render.com) and click **New + $\to$ Web Service**.
-2. Connect your GitHub repository.
-3. In the Web Service settings:
+You can deploy CrowdSync to Render in two ways:
+
+### Method 1: Automatic Blueprint (`render.yaml`)
+1. In the Render Dashboard, click **New + → Blueprint**.
+2. Select your `CrowdSync` repository.
+3. Render reads `render.yaml` and provisions both the **Managed PostgreSQL database** and the **FastAPI Docker service** with zero manual configuration.
+
+### Method 2: Manual Web Service Setup via Dashboard
+1. Log in to [Render](https://render.com) and click **New + → Web Service**.
+2. Select your `CrowdSync` repository.
+3. Configure the following fields in the Render Dashboard:
    * **Name:** `crowdsync-api`
-   * **Region:** Select closest region to your database (e.g., Oregon or Frankfurt).
-   * **Branch:** `main` (or `master`)
-   * **Root Directory:** Leave blank (root).
-   * **Runtime:** `Python 3`
-   * **Build Command:**
-     ```bash
-     pip install -r backend/requirements.txt && alembic upgrade head && python scripts/seed_demo.py
-     ```
-   * **Start Command:**
-     ```bash
-     uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
-     ```
-4. In **Environment Variables**:
-   * `PYTHONPATH`: `backend`
-   * `DATABASE_URL`: Your managed PostgreSQL URL.
+   * **Language / Runtime:** `Docker`
+   * **Branch:** `main`
+   * **Root Directory:** `backend`
+   * **Dockerfile Path:** `Dockerfile` (or `backend/Dockerfile` if Root Directory is blank)
+   * **Docker Build Context:** `.` (which resolves to `backend` when Root Directory is `backend`)
+4. In **Pre-Deploy Command** (under Advanced):
+   ```bash
+   alembic upgrade head
+   ```
+   *(This runs migrations safely against your production database before starting the new container).*
+5. In **Environment Variables**:
+   * `DATABASE_URL`: Your PostgreSQL connection string (supports `postgres://` or `postgresql://`).
    * `SECRET_KEY`: Generate a random 64-character hex string.
-   * `CORS_ORIGINS`: Your Vercel frontend domain (e.g. `https://crowdsync.vercel.app`).
-5. In **Health Check Path**, enter: `/health`.
-6. Click **Create Web Service**.
+   * `CORS_ORIGINS`: Your Vercel frontend domain (e.g. `https://crowdsync.vercel.app` or `*`).
+   * `DEMO_MODE`: `true`
+6. In **Health Check Path**:
+   * `/health`
+7. Click **Create Web Service**.
 
 ---
 

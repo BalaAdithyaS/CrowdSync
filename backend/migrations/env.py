@@ -21,11 +21,13 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Use dynamic DATABASE_URL
-db_url = settings.DATABASE_URL
-if db_url.startswith("sqlite+aiosqlite"):
-    db_url = db_url.replace("sqlite+aiosqlite", "sqlite")
-elif db_url.startswith("postgresql+asyncpg"):
-    db_url = db_url.replace("postgresql+asyncpg", "postgresql")
+db_url = settings.DATABASE_URL.strip()
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+elif db_url.startswith("sqlite+aiosqlite://"):
+    db_url = db_url.replace("sqlite+aiosqlite://", "sqlite://", 1)
+elif db_url.startswith("postgresql+asyncpg://"):
+    db_url = db_url.replace("postgresql+asyncpg://", "postgresql://", 1)
 
 config.set_main_option("sqlalchemy.url", db_url)
 
