@@ -1,0 +1,35 @@
+import enum
+
+class UserRole(str, enum.Enum):
+    USER = "USER"
+    LOCATION_ADMIN = "LOCATION_ADMIN"
+    ORGANIZATION_ADMIN = "ORGANIZATION_ADMIN"
+    PLATFORM_ADMIN = "PLATFORM_ADMIN"
+
+class CounterStatus(str, enum.Enum):
+    OPEN = "OPEN"
+    CLOSED = "CLOSED"
+    PAUSED = "PAUSED"
+
+class QueueStatus(str, enum.Enum):
+    WAITING = "WAITING"
+    APPROACHING = "APPROACHING"
+    CALLED = "CALLED"
+    SERVING = "SERVING"
+    COMPLETED = "COMPLETED"
+    CANCELLED = "CANCELLED"
+    NO_SHOW = "NO_SHOW"
+
+class CrowdLevel(str, enum.Enum):
+    LOW = "LOW"
+    MODERATE = "MODERATE"
+    HIGH = "HIGH"
+
+class NotificationType(str, enum.Enum):
+    QUEUE_JOINED = "QUEUE_JOINED"
+    POSITION_UPDATED = "POSITION_UPDATED"
+    APPROACHING_TURN = "APPROACHING_TURN"
+    TICKET_CALLED = "TICKET_CALLED"
+    QUEUE_CANCELLED = "QUEUE_CANCELLED"
+    COUNTER_CLOSED = "COUNTER_CLOSED"
+    QUEUE_COMPLETED = "QUEUE_COMPLETED"
